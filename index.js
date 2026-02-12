@@ -1,12 +1,11 @@
-import makeWASocket, { DisconnectReason, useSingleFileAuthState } from '@whiskeysockets/baileys';
+
+import makeWASocket, { DisconnectReason, useMultiFileAuthState } from '@whiskeysockets/baileys';
 import { Boom } from '@hapi/boom';
 import P from 'pino';
 
-import fs from 'fs';
-
-const { state, saveState } = useSingleFileAuthState('./auth_info.json');
-
 async function startBot() {
+    const { state, saveCreds } = await useMultiFileAuthState('auth_info');
+
     const sock = makeWASocket({
         logger: P({ level: 'silent' }),
         printQRInTerminal: true,
@@ -34,7 +33,7 @@ async function startBot() {
         }
     });
 
-    sock.ev.on('creds.update', saveState);
+    sock.ev.on('creds.update', saveCreds);
 }
 
 startBot();
